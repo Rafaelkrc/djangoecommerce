@@ -3,6 +3,7 @@ from django.db import models
 from PIL import Image
 import os
 from django.utils.text import slugify
+from utils import utils
 
 
 class Product(models.Model):
@@ -25,11 +26,11 @@ class Product(models.Model):
     )
 
     def get_price_marketing_formated(self):
-        return f'€ {self.price_marketing:.2f}'.replace('.', ',')
+        return utils.format_price(self.price_marketing)
     get_price_marketing_formated.short_description = 'Price'
 
     def get_price_promotional_marketing_formated(self):
-        return f'€ {self.price_promotional_marketing:.2f}'.replace('.', ',')
+        return utils.format_price(self.price_promotional_marketing)
     get_price_promotional_marketing_formated.short_description = 'Price Prom.'
 
     @staticmethod
