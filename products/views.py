@@ -1,3 +1,27 @@
 from django.shortcuts import render
+from django.views.generic import ListView
+from django.views import View
 
-# Create your views here.
+
+class ProductListView(ListView):
+    ...
+
+
+class ProductDetailView(View):
+    ...
+
+
+class AddToCartView(View):
+    ...
+
+
+class RemoveToCartView(View):
+    ...
+
+
+class CartView(View):
+    ...
+
+
+class FinaliseView(View):
+    ...
