@@ -7,7 +7,7 @@ class PayView(View):
     ...
 
 
-class ClosedOrderView(View):
+class SaveOrderView(View):
     ...
 
 
