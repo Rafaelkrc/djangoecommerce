@@ -5,8 +5,6 @@ from products.models import Product, Variation
 from django.http import HttpResponse
 from django.contrib import messages
 
-from pprint import pprint
-
 
 class ProductListView(ListView):
     model = Product
@@ -85,6 +83,8 @@ class AddToCartView(View):
                 'variation_id': variation_id,
                 'unit_price': unit_price,
                 'unit_promotional_price': unit_promotional_price,
+                'quantitative_price': unit_price,
+                'quantitative_promotional_price': unit_promotional_price,
                 'quantity': 1,
                 'slug': slug,
                 'image': image,
@@ -96,11 +96,36 @@ class AddToCartView(View):
                 variation_name} adicionado ao seu carrinho,'
             f' total de {cart[variation_id]['quantity']} unidades!'
         )
+
         return redirect(http_referer)
 
 
 class RemoveToCartView(View):
-    ...
+    def get(self, *args, **kwargs):
+        http_referer = self.request.META.get(
+            'HTTP_REFERER', resolve_url('product:list'))
+        variation_id = self.request.GET.get('vid')
+
+        if not variation_id:
+            return redirect(http_referer)
+
+        if not self.request.session.get('cart'):
+            return redirect(http_referer)
+
+        if variation_id not in self.request.session['cart']:
+            return redirect(http_referer)
+
+        cart = self.request.session['cart'][variation_id]
+
+        messages.success(
+            self.request,
+            f'Produto {cart["product_name"]} {cart['variation_name']} '
+            f'removido com sucesso do seu pedido!'
+        )
+
+        del self.request.session['cart'][variation_id]
+        self.request.session.save()
+        return redirect(http_referer)
 
 
 class CartView(View):
@@ -108,5 +133,6 @@ class CartView(View):
         return render(self.request, 'products/cart.html')
 
 
-class FinaliseView(View):
-    ...
+class PurchaseSummaryView(View):
+    def get(self, *args, **kwargs):
+        return HttpResponse('Finalizar pedido!')
