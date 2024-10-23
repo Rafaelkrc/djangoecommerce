@@ -1,5 +1,4 @@
 def format_price(val):
-    print(val)
     return f'€ {val:.2f}'.replace('.', ',')
 
 

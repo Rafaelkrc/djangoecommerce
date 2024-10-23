@@ -17,10 +17,11 @@ class ProductDetailView(DetailView):
     model = Product
     template_name = 'products/detail.html'
     context_object_name = 'product'
-    slug_url_kwarg = 'slug'
+    slug_field = 'slug'
 
 
 class AddToCartView(View):
+
     def get(self, *args, **kwargs):
         http_referer = self.request.META.get(
             'HTTP_REFERER', resolve_url('product:list'))
@@ -89,14 +90,16 @@ class AddToCartView(View):
                 'slug': slug,
                 'image': image,
             }
+
         self.request.session.save()
+
         messages.success(
             self.request,
             f'Produto {product.name} {
                 variation_name} adicionado ao seu carrinho,'
             f' total de {cart[variation_id]['quantity']} unidades!'
         )
-
+        print(variation_id, cart)
         return redirect(http_referer)
 
 
@@ -130,7 +133,8 @@ class RemoveToCartView(View):
 
 class CartView(View):
     def get(self, *args, **kwargs):
-        return render(self.request, 'products/cart.html')
+        context = {'cart': self.request.session.get('cart', {})}
+        return render(self.request, 'products/cart.html', context)
 
 
 class PurchaseSummaryView(View):
