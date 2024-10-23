@@ -43,8 +43,14 @@ INSTALLED_APPS = [
     'products',
     'order',
     'user_profile',
+    'crispy_forms',
+    'crispy_bootstrap4',
     'debug_toolbar',
 ]
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -144,7 +150,7 @@ MESSAGE_TAGS = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Sessão em dias: 60s * 60m * 24h * 1d
-SESSION_COOKIE_AGE = 60 * 60 * 24 * 7
+SESSION_COOKIE_AGE = 60 * 60 * 1 * 0
 
 # Salvar a cada requisição
 SESSION_SAVE_EVERY_REQUEST = False
