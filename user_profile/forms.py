@@ -17,10 +17,10 @@ class UserForm(forms.ModelForm):
     password2 = forms.CharField(
         required=False, widget=forms.PasswordInput, label='Confirmação da senha')
 
-    def __init__(self, user=None, *args, **kwargs):
+    def __init__(self, user_profile=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.user = user
+        self.user_profile = user_profile
 
     class Meta:
         model = User
@@ -46,7 +46,7 @@ class UserForm(forms.ModelForm):
         error_msg_required_field = 'Senha obrigatória'
 
         # usuário logados:update
-        if self.user:
+        if self.user_profile:
             if user_db:
                 if user_data != user_db.username:
                     validation_error_messages['username'] = error_msg_user_exists
@@ -80,7 +80,7 @@ class UserForm(forms.ModelForm):
                 validation_error_messages['password'] = error_msg_password_match
                 validation_error_messages['password2'] = error_msg_password_match
 
-            if len(password_data) < 6:
+            if len(password_data) < 6:  # type: ignore
                 validation_error_messages['password'] = error_msg_password_short
 
         if validation_error_messages:
