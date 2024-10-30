@@ -12,7 +12,11 @@ class BaseProfile(View):
     def setup(self, *args, **kwargs):
         super().setup(*args, **kwargs)
 
+        self.profile = None
+
         if self.request.user.is_authenticated:
+            self.profile = models.UserProfile.objects.filter(
+                user_db=self.request.user).first()
             self.context = {
                 'userform': forms.UserForm(data=self.request.POST or None, user=self.request.user, instance=self.request.user),
                 'profileform': forms.ProfileForm(data=self.request.POST or None)
@@ -32,7 +36,9 @@ class BaseProfile(View):
 
 class CreateView(BaseProfile):
     def post(self, *args, **kwargs):
-        return self.renderized
+        print(self.profile)
+        return render(
+            self.request, self.template_name, self.context)
 
 
 class UpdateView(View):

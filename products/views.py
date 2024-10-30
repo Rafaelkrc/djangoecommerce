@@ -25,6 +25,7 @@ class AddToCartView(View):
     def get(self, *args, **kwargs):
         http_referer = self.request.META.get(
             'HTTP_REFERER', resolve_url('product:list'))
+
         variation_id = self.request.GET.get('vid')
 
         if not variation_id:
@@ -32,6 +33,7 @@ class AddToCartView(View):
             return redirect(http_referer)
 
         variation = get_object_or_404(Variation, id=variation_id)
+
         variation_stock = variation.stock
         product = variation.product
 
@@ -40,6 +42,7 @@ class AddToCartView(View):
         variation_name = variation.name or ''
         unit_price = variation.price
         unit_promotional_price = variation.promotional_price
+        quantity = 1
         slug = product.slug
         image = product.image
 
@@ -65,7 +68,7 @@ class AddToCartView(View):
             cart_quantity += 1
 
             if variation_stock < cart_quantity:
-                messages.error(
+                messages.warning(
                     self.request,
                     f'Estoque insuficiente para {
                         cart_quantity}x no produto "{product_name}".'
@@ -86,7 +89,7 @@ class AddToCartView(View):
                 'unit_promotional_price': unit_promotional_price,
                 'quantitative_price': unit_price,
                 'quantitative_promotional_price': unit_promotional_price,
-                'quantity': 1,
+                'quantity': quantity,
                 'slug': slug,
                 'image': image,
             }
@@ -99,11 +102,11 @@ class AddToCartView(View):
                 variation_name} adicionado ao seu carrinho,'
             f' total de {cart[variation_id]['quantity']} unidades!'
         )
-        print(variation_id, cart)
         return redirect(http_referer)
 
 
 class RemoveToCartView(View):
+
     def get(self, *args, **kwargs):
         http_referer = self.request.META.get(
             'HTTP_REFERER', resolve_url('product:list'))
@@ -132,6 +135,7 @@ class RemoveToCartView(View):
 
 
 class CartView(View):
+
     def get(self, *args, **kwargs):
         context = {'cart': self.request.session.get('cart', {})}
         return render(self.request, 'products/cart.html', context)
