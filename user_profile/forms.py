@@ -1,4 +1,3 @@
-from typing import Any
 from django import forms
 from django.contrib.auth.models import User
 from . import models
@@ -29,7 +28,6 @@ class UserForm(forms.ModelForm):
                   'password', 'password2', 'email')
 
     def clean(self, *args, **kwargs):
-        data = self.data
         cleaned = self.cleaned_data
         validation_error_messages = {}
 
@@ -45,15 +43,16 @@ class UserForm(forms.ModelForm):
         error_msg_email_exists = 'Email já existe'
         error_msg_password_short = 'Senha precisa de 6 digitos'
         error_msg_password_match = 'As duas senha precisam ser iguais'
+        error_msg_required_field = 'Senha obrigatória'
 
         # usuário logados:update
         if self.user:
-            if user_data != user_db:
-                if user_db:
+            if user_db:
+                if user_data != user_db.username:
                     validation_error_messages['username'] = error_msg_user_exists
 
-            if email_data != email_db:
-                if email_db:
+            if email_db:
+                if email_data != email_db.email:
                     validation_error_messages['email'] = error_msg_email_exists
 
             if password_data:
@@ -65,7 +64,24 @@ class UserForm(forms.ModelForm):
                     validation_error_messages['password'] = error_msg_password_short
 
         else:
-            validation_error_messages['username'] = 'else'
+            if user_db:
+                validation_error_messages['username'] = error_msg_user_exists
+
+            if email_db:
+                validation_error_messages['email'] = error_msg_email_exists
+
+            if not password_data:
+                validation_error_messages['password'] = error_msg_required_field
+
+            if not password2_data:
+                validation_error_messages['password2'] = error_msg_required_field
+
+            if password_data != password2_data:
+                validation_error_messages['password'] = error_msg_password_match
+                validation_error_messages['password2'] = error_msg_password_match
+
+            if len(password_data) < 6:
+                validation_error_messages['password'] = error_msg_password_short
 
         if validation_error_messages:
             raise (forms.ValidationError(validation_error_messages))
