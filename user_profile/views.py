@@ -49,6 +49,8 @@ class BaseProfile(View):
 class CreateView(BaseProfile):
     def post(self, *args, **kwargs):
         if not self.userform.is_valid() or not self.profileform.is_valid():
+            messages.error(
+                self.request, 'Existe erros nos dados informados, por favor verique!')
             return self.renderized
 
         username = self.userform.cleaned_data.get('username')
@@ -106,7 +108,10 @@ class CreateView(BaseProfile):
         messages.success(
             self.request, 'Você fez login e pode concluir sua compra.')
 
-        return redirect('user_profile:create')
+        if self.request.session['cart']:
+            return redirect('product:cart')
+
+        return redirect('product:list')
         return self.renderized
 
 
