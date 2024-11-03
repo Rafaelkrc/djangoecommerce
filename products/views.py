@@ -3,6 +3,7 @@ from django.views.generic import ListView, DetailView
 from django.views import View
 from products.models import Product, Variation
 from django.contrib import messages
+from django.db.models import Q
 from user_profile.models import UserProfile
 
 
@@ -12,6 +13,26 @@ class ProductListView(ListView):
     context_object_name = 'products'
     paginate_by = 10
     ordering = ['-id']
+
+
+class SearchView(ProductListView):
+    def get_queryset(self, *args, **kwargs):
+        term = self.request.GET.get('term') or self.request.session['term']
+        queryset = super().get_queryset(*args, **kwargs)
+
+        if not term:
+            return queryset
+
+        self.request.session['term'] = term
+
+        queryset = queryset.filter(
+            Q(name__icontains=term) |
+            Q(short_description__icontains=term) |
+            Q(long_description__icontains=term)
+        )
+
+        self.request.session.save()
+        return queryset
 
 
 class ProductDetailView(DetailView):
