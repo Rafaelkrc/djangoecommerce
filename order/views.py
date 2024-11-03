@@ -1,6 +1,6 @@
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
 from django.views import View
 from django.http import HttpResponse
 from django.contrib import messages
@@ -9,23 +9,23 @@ from utils import utils
 from .models import Order, OrderItem
 
 
-class DispatchLoginRequired(View):
+class DispatchLoginRequiredMixin(View):
     def dispatch(self, *args, **kwargs):
         if not self.request.user.is_authenticated:
             return redirect('user_profile:create')
         return super().dispatch(*args, **kwargs)
 
-
-class PayView(DispatchLoginRequired, DetailView):
-    template_name = 'order/pay.html'
-    model = Order
-    pk_url_kwarg = 'pk'
-    context_object_name = 'order'
-
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
         queryset = queryset.filter(user=self.request.user)
         return queryset
+
+
+class PayView(DispatchLoginRequiredMixin, DetailView):
+    template_name = 'order/pay.html'
+    model = Order
+    pk_url_kwarg = 'pk'
+    context_object_name = 'order'
 
 
 class SaveOrderView(View):
@@ -99,11 +99,16 @@ class SaveOrderView(View):
         return redirect(reverse('order:pay', kwargs={'pk': order.pk}))
 
 
-class DetailOrderView(View):
-    def get(self, *args, **kwargs):
-        return HttpResponse('Detalhe do pedido')
+class DetailOrderView(DispatchLoginRequiredMixin, DetailView):
+    model = Order
+    context_object_name = 'order'
+    template_name = 'order/detail.html'
+    pk_url_kwarg = 'pk'
 
 
-class ListOrderView(View):
-    def get(self, *args, **kwargs):
-        return HttpResponse('Listar')
+class ListOrderView(DispatchLoginRequiredMixin, ListView):
+    model = Order
+    context_object_name = 'orders'
+    template_name = 'order/list.html'
+    paginate_by = 5
+    ordering = ['-id']
