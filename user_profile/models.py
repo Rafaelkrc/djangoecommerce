@@ -56,6 +56,16 @@ class UserProfile(models.Model):
     def clean(self):
         error_messages = {}
 
+        send_cpf = self.cpf or None
+        save_cpf = None
+        profile = UserProfile.objects.filter(cpf=send_cpf).first()
+
+        if profile:
+            save_cpf = send_cpf
+
+            if save_cpf is not None and self.pk != profile.pk:
+                error_messages['cpf'] = 'CPF já existe.'
+
         if not valida_cpf(self.cpf):
             error_messages['cpf'] = 'Digite um CPF válido!'
 
