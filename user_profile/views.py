@@ -112,7 +112,6 @@ class CreateView(BaseProfile):
             return redirect('product:cart')
 
         return redirect('product:list')
-        return self.renderized
 
 
 class UpdateView(View):
