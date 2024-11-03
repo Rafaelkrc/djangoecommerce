@@ -123,7 +123,7 @@ class RemoveToCartView(View):
 
         cart = self.request.session['cart'][variation_id]
 
-        messages.success(
+        messages.warning(
             self.request,
             f'Produto {cart["product_name"]} {cart['variation_name']} '
             f'removido com sucesso do seu pedido!'
